@@ -10,6 +10,7 @@ from api.health import router as health_router
 from api.portfolio import router as portfolio_router
 from api.portfolio import _record_snapshot
 from api.stream import router as stream_router
+from api.watchlist import router as watchlist_router
 from db.schema import DB_PATH, init_db
 from market.simulator import GBMSimulator
 
@@ -43,6 +44,7 @@ app = FastAPI(lifespan=lifespan)
 app.include_router(health_router)
 app.include_router(stream_router)
 app.include_router(portfolio_router)
+app.include_router(watchlist_router)
 
 try:
     app.mount("/", StaticFiles(directory="../static", html=True), name="static")
