@@ -12,10 +12,11 @@ import { PositionsTable } from '@/components/PositionsTable';
 import { PortfolioHeatmap } from '@/components/PortfolioHeatmap';
 import { PnLChart } from '@/components/PnLChart';
 import { TradeBar } from '@/components/TradeBar';
+import { ChatPanel } from '@/components/ChatPanel';
 
 export default function Home() {
   const { prices, priceHistory, connectionStatus } = usePrices();
-  const { watchlist, add, remove } = useWatchlist();
+  const { watchlist, add, remove, refresh: refreshWatchlist } = useWatchlist();
   const { portfolio, refresh } = usePortfolio();
   const history = usePortfolioHistory();
   const [selectedTicker, setSelectedTicker] = useState<string | null>(null);
@@ -43,7 +44,7 @@ export default function Home() {
           <TradeBar selectedTicker={selectedTicker} onTradeSuccess={refresh} />
         </aside>
 
-        <main className="flex-1 p-4 overflow-y-auto">
+        <main className="flex-1 p-4 overflow-y-auto min-w-0">
           {selectedTicker && selected ? (
             <MainChart
               ticker={selectedTicker}
@@ -83,6 +84,8 @@ export default function Home() {
             </div>
           )}
         </main>
+
+        <ChatPanel onActionsExecuted={() => { refresh(); refreshWatchlist(); }} />
       </div>
     </div>
   );
