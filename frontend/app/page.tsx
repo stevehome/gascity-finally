@@ -3,13 +3,20 @@
 import { useState } from 'react';
 import { usePrices } from '@/hooks/usePrices';
 import { useWatchlist } from '@/hooks/useWatchlist';
+import { usePortfolio } from '@/hooks/usePortfolio';
+import { usePortfolioHistory } from '@/hooks/usePortfolioHistory';
 import { WatchlistPanel } from '@/components/WatchlistPanel';
 import { MainChart } from '@/components/MainChart';
 import { ConnectionStatusIndicator } from '@/components/ConnectionStatus';
+import { PositionsTable } from '@/components/PositionsTable';
+import { PortfolioHeatmap } from '@/components/PortfolioHeatmap';
+import { PnLChart } from '@/components/PnLChart';
 
 export default function Home() {
   const { prices, priceHistory, connectionStatus } = usePrices();
   const { watchlist, add, remove } = useWatchlist();
+  const portfolio = usePortfolio();
+  const history = usePortfolioHistory();
   const [selectedTicker, setSelectedTicker] = useState<string | null>(null);
 
   const selected = selectedTicker ? prices[selectedTicker] : null;
@@ -34,7 +41,7 @@ export default function Home() {
           />
         </aside>
 
-        <main className="flex-1 p-4 overflow-hidden">
+        <main className="flex-1 p-4 overflow-y-auto">
           {selectedTicker && selected ? (
             <MainChart
               ticker={selectedTicker}
@@ -43,10 +50,34 @@ export default function Home() {
               direction={selected.direction}
             />
           ) : (
-            <div className="w-full h-full flex items-center justify-center">
+            <div className="w-full h-48 flex items-center justify-center">
               <p className="text-[#e6edf3]/20 text-sm font-mono tracking-widest">
                 SELECT A TICKER
               </p>
+            </div>
+          )}
+
+          {portfolio && (
+            <div className="mt-4 space-y-4">
+              <section className="bg-[#1a1a2e] border border-[#e6edf3]/10 rounded p-3">
+                <h2 className="text-[#ecad0a] font-mono text-xs font-bold tracking-widest mb-2">PORTFOLIO VALUE</h2>
+                <div className="flex gap-6 mb-2 text-xs font-mono">
+                  <span className="text-[#e6edf3]/60">Total: <span className="text-[#e6edf3]">${portfolio.total_value.toFixed(2)}</span></span>
+                  <span className="text-[#e6edf3]/60">Cash: <span className="text-[#e6edf3]">${portfolio.cash_balance.toFixed(2)}</span></span>
+                  <span className="text-[#e6edf3]/60">P&amp;L: <span className={portfolio.total_unrealized_pnl >= 0 ? 'text-green-400' : 'text-red-400'}>{portfolio.total_unrealized_pnl >= 0 ? '+' : ''}{portfolio.total_unrealized_pnl.toFixed(2)}</span></span>
+                </div>
+                <PnLChart history={history} />
+              </section>
+
+              <section className="bg-[#1a1a2e] border border-[#e6edf3]/10 rounded p-3">
+                <h2 className="text-[#ecad0a] font-mono text-xs font-bold tracking-widest mb-2">POSITIONS</h2>
+                <PositionsTable positions={portfolio.positions} />
+              </section>
+
+              <section className="bg-[#1a1a2e] border border-[#e6edf3]/10 rounded p-3">
+                <h2 className="text-[#ecad0a] font-mono text-xs font-bold tracking-widest mb-2">HEATMAP</h2>
+                <PortfolioHeatmap positions={portfolio.positions} totalValue={portfolio.total_value} />
+              </section>
             </div>
           )}
         </main>
