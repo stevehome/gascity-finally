@@ -1,0 +1,29 @@
+services:
+  app:
+    build:
+      context: ..
+    environment:
+      LLM_MOCK: "true"
+    volumes:
+      - test-db:/app/db
+    healthcheck:
+      test: ["CMD", "python3", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8000/api/health')"]
+      interval: 2s
+      timeout: 5s
+      retries: 20
+
+  playwright:
+    image: node:20
+    working_dir: /tests
+    volumes:
+      - ./:/tests
+    environment:
+      BASE_URL: http://app:8000
+    depends_on:
+      app:
+        condition: service_healthy
+    command: >
+      sh -c "npm ci && npx playwright install --with-deps chromium && npx playwright test"
+
+volumes:
+  test-db:
