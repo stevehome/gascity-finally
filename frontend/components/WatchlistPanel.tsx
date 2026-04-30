@@ -1,19 +1,21 @@
 'use client';
 
 import { useEffect, useRef, useState } from 'react';
-import { PricesState } from '@/hooks/usePrices';
+import { PriceHistory, PricesState } from '@/hooks/usePrices';
 import { WatchlistItem } from '@/hooks/useWatchlist';
+import { Sparkline } from '@/components/Sparkline';
 
 type Props = {
   watchlist: WatchlistItem[];
   prices: PricesState;
+  priceHistory: PriceHistory;
   selectedTicker: string | null;
   onSelect: (ticker: string) => void;
   onAdd: (ticker: string) => Promise<void>;
   onRemove: (ticker: string) => Promise<void>;
 };
 
-export function WatchlistPanel({ watchlist, prices, selectedTicker, onSelect, onAdd, onRemove }: Props) {
+export function WatchlistPanel({ watchlist, prices, priceHistory, selectedTicker, onSelect, onAdd, onRemove }: Props) {
   const [flashMap, setFlashMap] = useState<Record<string, 'up' | 'down'>>({});
   const prevPricesRef = useRef<Record<string, number>>({});
   const [addInput, setAddInput] = useState('');
@@ -76,22 +78,27 @@ export function WatchlistPanel({ watchlist, prices, selectedTicker, onSelect, on
                 flash === 'down' ? 'animate-flash-red' : '',
               ].filter(Boolean).join(' ')}
             >
-              <span className="text-xs font-bold text-[#e6edf3] font-mono">{item.ticker}</span>
-              <div className="flex items-center gap-3">
-                <span className="text-xs text-[#e6edf3] font-mono">${price.toFixed(2)}</span>
-                <span className={`text-xs font-mono w-14 text-right ${
+              <div className="flex flex-col min-w-0">
+                <span className="text-xs font-bold text-[#e6edf3] font-mono">{item.ticker}</span>
+                <span className={`text-xs font-mono ${
                   direction === 'up' ? 'text-green-400' :
                   direction === 'down' ? 'text-red-400' :
                   'text-[#e6edf3]/40'
                 }`}>
                   {changePct >= 0 ? '+' : ''}{changePct.toFixed(2)}%
                 </span>
-                <button
-                  onClick={e => { e.stopPropagation(); onRemove(item.ticker); }}
-                  className="text-[#e6edf3]/30 hover:text-red-400 text-sm leading-none transition-colors w-4 text-center"
-                >
-                  ×
-                </button>
+              </div>
+              <div className="flex items-center gap-2">
+                <Sparkline priceHistory={priceHistory[item.ticker] ?? []} />
+                <div className="flex flex-col items-end gap-1">
+                  <span className="text-xs text-[#e6edf3] font-mono">${price.toFixed(2)}</span>
+                  <button
+                    onClick={e => { e.stopPropagation(); onRemove(item.ticker); }}
+                    className="text-[#e6edf3]/30 hover:text-red-400 text-sm leading-none transition-colors w-4 text-center"
+                  >
+                    ×
+                  </button>
+                </div>
               </div>
             </div>
           );

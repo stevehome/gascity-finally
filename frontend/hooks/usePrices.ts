@@ -10,11 +10,13 @@ export type PriceEntry = {
 };
 
 export type PricesState = Record<string, PriceEntry>;
+export type PriceHistory = Record<string, number[]>;
 
 export type ConnectionStatus = 'connected' | 'reconnecting' | 'disconnected';
 
 export function usePrices() {
   const [prices, setPrices] = useState<PricesState>({});
+  const [priceHistory, setPriceHistory] = useState<PriceHistory>({});
   const [connectionStatus, setConnectionStatus] = useState<ConnectionStatus>('disconnected');
   const esRef = useRef<EventSource | null>(null);
 
@@ -36,6 +38,11 @@ export function usePrices() {
           timestamp: data.timestamp,
         },
       }));
+      setPriceHistory(prev => {
+        const hist = prev[data.ticker] ?? [];
+        const next = [...hist, data.price as number];
+        return { ...prev, [data.ticker]: next.length > 100 ? next.slice(-100) : next };
+      });
     };
 
     es.onerror = () => {
@@ -51,5 +58,5 @@ export function usePrices() {
     };
   }, []);
 
-  return { prices, connectionStatus };
+  return { prices, priceHistory, connectionStatus };
 }
