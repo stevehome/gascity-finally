@@ -20,6 +20,7 @@ export type Portfolio = {
 
 export function usePortfolio() {
   const [portfolio, setPortfolio] = useState<Portfolio | null>(null);
+  const [refreshTick, setRefreshTick] = useState(0);
 
   useEffect(() => {
     const fetchPortfolio = async () => {
@@ -32,7 +33,9 @@ export function usePortfolio() {
     fetchPortfolio();
     const id = setInterval(fetchPortfolio, 5000);
     return () => clearInterval(id);
-  }, []);
+  }, [refreshTick]);
 
-  return portfolio;
+  const refresh = () => setRefreshTick(t => t + 1);
+
+  return { portfolio, refresh };
 }

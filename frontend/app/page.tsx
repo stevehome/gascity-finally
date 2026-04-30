@@ -11,11 +11,12 @@ import { ConnectionStatusIndicator } from '@/components/ConnectionStatus';
 import { PositionsTable } from '@/components/PositionsTable';
 import { PortfolioHeatmap } from '@/components/PortfolioHeatmap';
 import { PnLChart } from '@/components/PnLChart';
+import { TradeBar } from '@/components/TradeBar';
 
 export default function Home() {
   const { prices, priceHistory, connectionStatus } = usePrices();
   const { watchlist, add, remove } = useWatchlist();
-  const portfolio = usePortfolio();
+  const { portfolio, refresh } = usePortfolio();
   const history = usePortfolioHistory();
   const [selectedTicker, setSelectedTicker] = useState<string | null>(null);
 
@@ -29,7 +30,7 @@ export default function Home() {
       </header>
 
       <div className="flex flex-1 overflow-hidden">
-        <aside className="w-72 flex-shrink-0 p-2 overflow-hidden">
+        <aside className="w-72 flex-shrink-0 p-2 flex flex-col gap-2 overflow-hidden">
           <WatchlistPanel
             watchlist={watchlist}
             prices={prices}
@@ -39,6 +40,7 @@ export default function Home() {
             onAdd={add}
             onRemove={remove}
           />
+          <TradeBar selectedTicker={selectedTicker} onTradeSuccess={refresh} />
         </aside>
 
         <main className="flex-1 p-4 overflow-y-auto">
