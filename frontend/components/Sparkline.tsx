@@ -1,6 +1,6 @@
 'use client';
 
-const W = 64;
+const W = 40;
 const H = 24;
 
 export function Sparkline({ priceHistory }: { priceHistory: number[] }) {

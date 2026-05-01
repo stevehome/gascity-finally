@@ -69,8 +69,9 @@ export function WatchlistPanel({ watchlist, prices, priceHistory, selectedTicker
             <div
               key={item.ticker}
               onClick={() => onSelect(item.ticker)}
+              style={{ display: 'grid', gridTemplateColumns: '60px 40px 46px 30px', gap: '4px', alignItems: 'center' }}
               className={[
-                'flex items-center justify-between px-3 py-2 cursor-pointer',
+                'px-2 py-1 cursor-pointer',
                 'border-b border-[#e6edf3]/5 transition-colors duration-150',
                 'hover:bg-[#e6edf3]/5',
                 isSelected ? 'bg-[#209dd7]/10 border-l-2 border-l-[#209dd7]' : '',
@@ -78,28 +79,24 @@ export function WatchlistPanel({ watchlist, prices, priceHistory, selectedTicker
                 flash === 'down' ? 'animate-flash-red' : '',
               ].filter(Boolean).join(' ')}
             >
-              <div className="flex flex-col min-w-0">
-                <span className="text-xs font-bold text-[#e6edf3] font-mono">{item.ticker}</span>
-                <span className={`text-xs font-mono ${
+              <div className="flex flex-col overflow-hidden">
+                <span className="text-xs font-bold text-[#e6edf3] font-mono truncate">{item.ticker}</span>
+                <span className={`text-[10px] font-mono ${
                   direction === 'up' ? 'text-green-400' :
                   direction === 'down' ? 'text-red-400' :
                   'text-[#e6edf3]/40'
                 }`}>
-                  {changePct >= 0 ? '+' : ''}{changePct.toFixed(2)}%
+                  {changePct != null ? `${changePct >= 0 ? '+' : ''}${changePct.toFixed(2)}%` : '—'}
                 </span>
               </div>
-              <div className="flex items-center gap-2">
-                <Sparkline priceHistory={priceHistory[item.ticker] ?? []} />
-                <div className="flex flex-col items-end gap-1">
-                  <span className="text-xs text-[#e6edf3] font-mono">${price.toFixed(2)}</span>
-                  <button
-                    onClick={e => { e.stopPropagation(); onRemove(item.ticker); }}
-                    className="text-[#e6edf3]/30 hover:text-red-400 text-sm leading-none transition-colors w-4 text-center"
-                  >
-                    ×
-                  </button>
-                </div>
-              </div>
+              <Sparkline priceHistory={priceHistory[item.ticker] ?? []} />
+              <span className="text-xs text-[#e6edf3] font-mono text-right">{price != null ? `$${price.toFixed(2)}` : '—'}</span>
+              <button
+                onClick={e => { e.stopPropagation(); onRemove(item.ticker); }}
+                className="ml-1 text-[9px] font-mono font-bold px-1 py-0.5 rounded border border-red-500/40 text-red-400 hover:bg-red-500/20 transition-colors flex-shrink-0"
+              >
+                DEL
+              </button>
             </div>
           );
         })}
@@ -108,18 +105,19 @@ export function WatchlistPanel({ watchlist, prices, priceHistory, selectedTicker
         )}
       </div>
 
-      <div className="p-2 border-t border-[#e6edf3]/10 flex gap-2">
+      <div className="px-2 py-1.5 border-t border-[#e6edf3]/10 flex gap-1 items-center">
+        <span className="font-mono text-[10px] font-bold tracking-widest flex-shrink-0 invisible">TRADE</span>
         <input
           type="text"
           value={addInput}
           onChange={e => setAddInput(e.target.value.toUpperCase())}
           onKeyDown={e => e.key === 'Enter' && handleAdd()}
-          placeholder="Add ticker..."
-          className="flex-1 bg-[#0d1117] border border-[#e6edf3]/20 text-[#e6edf3] text-xs px-2 py-1 rounded focus:outline-none focus:border-[#ecad0a] font-mono"
+          placeholder="add ticker"
+          className="flex-1 min-w-0 bg-[#0d1117] border border-[#e6edf3]/20 text-[#e6edf3] text-[10px] px-1.5 py-0.5 rounded focus:outline-none focus:border-[#ecad0a] font-mono"
         />
         <button
           onClick={handleAdd}
-          className="bg-[#ecad0a] text-[#0d1117] text-xs px-3 py-1 rounded font-bold hover:opacity-80 transition-opacity font-mono"
+          className="bg-[#ecad0a] text-[#0d1117] text-[10px] px-2 py-0.5 rounded font-bold hover:opacity-80 transition-opacity font-mono flex-shrink-0"
         >
           ADD
         </button>

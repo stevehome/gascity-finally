@@ -5,8 +5,8 @@ from datetime import datetime, timezone
 from typing import Optional
 
 import aiosqlite
-import litellm
 from fastapi import APIRouter
+from openai import AsyncOpenAI
 from pydantic import BaseModel, ValidationError
 
 from api.portfolio import _get_portfolio_data, _record_snapshot
@@ -188,11 +188,23 @@ async def chat(req: ChatRequest):
             messages.append({"role": "user", "content": req.message})
 
             try:
-                response = await litellm.acompletion(
-                    model="openrouter/openai/gpt-oss-120b",
-                    api_key=os.getenv("OPENROUTER_API_KEY"),
+                groq_key = os.getenv("GROQ_API_KEY")
+                if groq_key:
+                    client = AsyncOpenAI(
+                        api_key=groq_key,
+                        base_url="https://api.groq.com/openai/v1",
+                    )
+                    model = "llama-3.1-8b-instant"
+                else:
+                    client = AsyncOpenAI(
+                        api_key=os.getenv("OPENROUTER_API_KEY"),
+                        base_url="https://openrouter.ai/api/v1",
+                    )
+                    model = "meta-llama/llama-3.1-8b-instruct"
+                response = await client.chat.completions.create(
+                    model=model,
                     messages=messages,
-                    response_format=LLMResponse,
+                    response_format={"type": "json_object"},
                 )
                 content = response.choices[0].message.content
                 llm_resp = LLMResponse.model_validate_json(content)

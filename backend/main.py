@@ -3,7 +3,8 @@ from contextlib import asynccontextmanager
 
 import aiosqlite
 from dotenv import load_dotenv
-from fastapi import FastAPI
+from fastapi import FastAPI, Request, Response
+from starlette.middleware.base import BaseHTTPMiddleware
 from fastapi.staticfiles import StaticFiles
 
 from api.chat import router as chat_router
@@ -41,6 +42,19 @@ async def lifespan(app: FastAPI):
 
 
 app = FastAPI(lifespan=lifespan)
+
+
+class CSPMiddleware(BaseHTTPMiddleware):
+    async def dispatch(self, request: Request, call_next):
+        response = await call_next(request)
+        response.headers["Content-Security-Policy"] = (
+            "default-src 'self'; script-src 'self' 'unsafe-eval' 'unsafe-inline'; "
+            "style-src 'self' 'unsafe-inline'; connect-src 'self'"
+        )
+        return response
+
+
+app.add_middleware(CSPMiddleware)
 
 app.include_router(health_router)
 app.include_router(stream_router)

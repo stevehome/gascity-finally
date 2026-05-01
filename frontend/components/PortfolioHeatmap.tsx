@@ -30,7 +30,7 @@ function CustomContent(props: any) {
         {name}
       </text>
       <text x={x + width / 2} y={y + height / 2 + 8} textAnchor="middle" fill="#fff" fontSize={9} fontFamily="monospace" opacity={0.8}>
-        {pnl_pct >= 0 ? '+' : ''}{pnl_pct.toFixed(1)}%
+        {pnl_pct != null ? `${pnl_pct >= 0 ? '+' : ''}${pnl_pct.toFixed(1)}%` : '—'}
       </text>
     </g>
   );

@@ -103,14 +103,14 @@ export function MainChart({ ticker, price, priceHistory, direction }: Props) {
     <div className="w-full h-full flex flex-col bg-[#0d1117] rounded overflow-hidden border border-[#e6edf3]/10">
       <div className="flex items-baseline gap-3 px-4 pt-3 pb-2 border-b border-[#e6edf3]/10 flex-shrink-0">
         <span className="text-[#ecad0a] font-bold font-mono text-lg tracking-widest">{ticker}</span>
-        <span className="text-[#e6edf3] font-mono text-2xl">${price.toFixed(2)}</span>
+        <span className="text-[#e6edf3] font-mono text-2xl">{price != null ? `$${price.toFixed(2)}` : '—'}</span>
         <span className={`text-sm font-mono ml-1 ${
           direction === 'up' ? 'text-green-400' :
           direction === 'down' ? 'text-red-400' :
           'text-[#e6edf3]/40'
         }`}>
           {direction === 'up' ? '▲' : direction === 'down' ? '▼' : '—'}{' '}
-          {pct >= 0 ? '+' : ''}{pct.toFixed(3)}%
+          {pct != null ? `${pct >= 0 ? '+' : ''}${pct.toFixed(3)}%` : '—'}
         </span>
       </div>
       <div ref={containerRef} className="flex-1 min-h-0" />
