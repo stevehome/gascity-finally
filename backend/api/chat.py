@@ -181,7 +181,8 @@ async def chat(req: ChatRequest):
                 '"watchlist_changes": [{"ticker": "PYPL", "action": "add"}]}\n\n'
                 '"trades" and "watchlist_changes" are optional. '
                 'Trade side: "buy" or "sell". Watchlist action: "add" or "remove". '
-                "Be concise and data-driven."
+                "Only generate trades explicitly requested by the user — one entry per ticker. "
+                "Never invent or duplicate trades. Be concise and data-driven."
             )
             messages = [{"role": "system", "content": system_content}]
             messages.extend(history)
@@ -212,6 +213,16 @@ async def chat(req: ChatRequest):
                 llm_resp = LLMResponse(message=f"Error parsing LLM response: {e}")
             except Exception as e:
                 llm_resp = LLMResponse(message=f"LLM error: {e}")
+
+        # Deduplicate: keep first trade per ticker+side
+        seen = set()
+        deduped = []
+        for t in (llm_resp.trades or []):
+            key = (t.ticker.upper(), t.side)
+            if key not in seen:
+                seen.add(key)
+                deduped.append(t)
+        llm_resp.trades = deduped
 
         trades_executed = []
         errors = []
