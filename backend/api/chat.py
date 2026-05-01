@@ -39,7 +39,7 @@ class WatchlistChange(BaseModel):
 
 
 class LLMResponse(BaseModel):
-    message: str
+    message: str = ""
     trades: Optional[list[TradeAction]] = None
     watchlist_changes: Optional[list[WatchlistChange]] = None
 
