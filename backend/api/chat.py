@@ -182,7 +182,10 @@ async def chat(req: ChatRequest):
                 '"trades" and "watchlist_changes" are optional. '
                 'Trade side: "buy" or "sell". Watchlist action: "add" or "remove". '
                 "Only generate trades explicitly requested by the user — one entry per ticker. "
-                "Never invent or duplicate trades. Be concise and data-driven."
+                "Never invent or duplicate trades. Be concise and data-driven.\n"
+                "IMPORTANT: When the user asks to buy or sell, ALWAYS include the trade in the trades array. "
+                "The backend will validate — do NOT refuse or second-guess the trade yourself. "
+                "Trust the portfolio data above; it is accurate and current."
             )
             messages = [{"role": "system", "content": system_content}]
             messages.extend(history)
